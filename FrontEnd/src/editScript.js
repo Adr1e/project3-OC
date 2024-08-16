@@ -1,17 +1,31 @@
+const formData = new FormData();
+
 let modal = null
-const focusableSelector = "button, a, input, textarea"
 let focusables = []
 let previouslyFocusedElement = null
 
-var gallery 
-var worksData = [];
+let gallery 
+let worksData = [];
+let category
+let title
+let imageUrl
+const token = JSON.parse(localStorage.getItem('token')).token
+
+let cadrePhoto = document.querySelector('.cadre-photo');
+let photoIcon = cadrePhoto.querySelector('.photo-icon');
+let maxSizeText = cadrePhoto.querySelector('h5');
+let labelText = cadrePhoto.querySelector('.button-add-photo');
+let inputFile = document.getElementById('input-file');
+let img = document.getElementById('pre-img')
+let sendButton = document.getElementById('send-project')
+
+let projectIds = getAllIds(worksData);
+let deleteButtonId
+let targetId
 
 const apiUrl = 'http://localhost:5678/api';
-const filterId={
-    'all' : 0,
-    'objets' : 1,
-    'appartements':2,
-    'hotels-restaurants':3}
+const focusableSelector = "button, a, input, textarea"
+
 
 document.addEventListener("DOMContentLoaded", () => {
     gallery = document.getElementById('gallery');
@@ -20,24 +34,75 @@ document.addEventListener("DOMContentLoaded", () => {
     setModalAdd()
 })
 
+// Add an event listener to the file input field
+inputFile.onchange = function(){
+    img.src = URL.createObjectURL(inputFile.files[0])
+    console.log(inputFile.files[0])
+    const file = inputFile.files[0]
+    formData.append('image', file);
+
+    // If there is an existing image element, replace it with the new image
+    if (img) {
+        img.width = 150;
+        img.height = 195;
+        img.style.display = 'flex'
+    }
+
+    // Hide the photo-icon div and the h5 element
+
+    if (photoIcon) {
+      photoIcon.style.display = 'none';
+    }
+    if (maxSizeText) {
+      maxSizeText.style.display = 'none';
+    }
+    if (labelText) {
+        labelText.style.display = 'none';
+      }
+
+};
+
+sendButton.addEventListener('click',function(){
+    sendProject()
+})
+
+document.querySelectorAll('.js-modal-close').forEach(button => {
+    button.addEventListener('click', function(){
+        backToModal()
+        resetAddmodal()
+    });
+});
+
+document.getElementById('come-back-button').addEventListener('click', function(){
+    backToModal()
+    resetAddmodal()
+});
+
+window.addEventListener('keydown' , function (event) {
+    if (event.key === "Escape" || event.key === "esc") {
+        closeModal(event)
+    }
+    if (event.key === "Tab" && modal !=null) {
+        focusInModal(event)
+    }
+})
+
 function handleClickOutside(event,modalClass) {
     if (!document.querySelector(modalClass + ' .modal-wrapper').contains(event.target)) {
         closeModal(event)
+        resetAddmodal()
     }
 }
-
-document.querySelectorAll('.js-modal-close').forEach(button => {
-    button.addEventListener('click', closeModal);
-});
 
 function setModal(){
     document.querySelector('.js-modal').addEventListener('click' , function(){
         openModal('modal')
         createGalleryForModal()
+
     })
     document.getElementById("modal").addEventListener('click',function(event){
         handleClickOutside(event,'#modal')
-    })
+    })  
 }
 
 function setModalAdd(){
@@ -59,8 +124,6 @@ function openModal(id) {
     modal.setAttribute('aria-hidden','false')
     modal.setAttribute('aria-modal','true')
     modal.querySelector('.js-modal-close').addEventListener('click', closeModal)
-    // to do à dégager
-    modal.querySelector('.js-modal-stop').addEventListener('click', stopPropagation)
 }
 
 function toAddmodal() {
@@ -68,10 +131,15 @@ function toAddmodal() {
     openModal('modal-add')
 }
 
+function backToModal() {
+    document.getElementById('modal-add').style.display ='none';
+    openModal('modal')
+    createGalleryForModal()
+}
+
 function closeModal(event) {
     event.preventDefault()
     if (modal === null) {
-        console.log('hey')
         return
     }
     if (previouslyFocusedElement !== null) {
@@ -88,8 +156,15 @@ function closeModal(event) {
             modalContent.removeChild(modalContent.firstChild);
         }
     }
-
     modal = null
+}
+
+function resetAddmodal() {
+    photoIcon.style.display ='flex'
+    maxSizeText.style.display ='flex'
+    labelText.style.display ='flex'
+    img.src = ''
+    img.style.display = 'none'
 }
 
 const stopPropagation = function (e) {
@@ -114,24 +189,6 @@ const focusInModal = function(e) {
     focusables[index].focus()
 }
 
-
-
-window.addEventListener('keydown' , function (event) {
-    if (event.key === "Escape" || event.key === "esc") {
-        closeModal(event)
-    }
-    if (event.key === "Tab" && modal !=null) {
-        focusInModal(event)
-    }
-})
-
-const createIcon= function(className) {
-    const icon = document.createElement('i');
-    icon.classList.add('fa-solid', className);
-    icon.style.color = 'black';
-    return icon;
-}
-
 function createGalleryForModal(){
     const gallery = document.getElementById('gallery');
     
@@ -146,32 +203,19 @@ function createGalleryForModal(){
     images.forEach(img => {
             // Appel à la fonction createImageContainer pour créer le conteneur d'image
             const imageContainer = createImageContainer(img);
-
             // Appel à la fonction createDeleteButton pour créer le bouton de suppression
-            const deleteButton = createDeleteButton();
-    
+            const deleteButton = createDeleteButton(img.id);
+            console.log(img.id)
             imageContainer.appendChild(deleteButton);
             modalContent.appendChild(imageContainer);
     });
 }
-   
-const createDeleteButton = function() {
+
+const createDeleteButton = function(id) {
     const deleteButton = document.createElement('button');
     deleteButton.id = 'delete-button';
+    deleteButton.className = 'delete-button';
     deleteButton.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
-    deleteButton.style.position = 'absolute';
-    deleteButton.style.top = '5px';
-    deleteButton.style.right = '5px';
-    deleteButton.style.background = 'black';
-    deleteButton.style.border = 'none';
-    deleteButton.style.color = 'white';
-    deleteButton.style.width = '17px';
-    deleteButton.style.height = '17px';
-    deleteButton.style.display = 'flex';
-    deleteButton.style.alignItems = 'center';
-    deleteButton.style.justifyContent = 'center';
-    deleteButton.style.cursor = 'pointer';
-    deleteButton.style.borderRadius = '2px';
 
     // Ensure the icon is white and centered
     const icon = deleteButton.querySelector('i');
@@ -182,8 +226,15 @@ const createDeleteButton = function() {
     icon.style.alignItems = 'center';
     icon.style.justifyContent = 'center';
 
+
+    deleteButton.addEventListener('click', function() {
+        console.log(id)
+        deleteProject(id) 
+    });
     return deleteButton;
 }
+
+
 
 const createImageContainer = function(img) {
     const imageContainer = document.createElement('div');
@@ -201,11 +252,6 @@ const createImageContainer = function(img) {
     return imageContainer;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    gallery = document.getElementById('gallery');
-    fetchWorks();
-});
-
 async function fetchWorks() {
     try {
         let rWorkData = await fetch(`${apiUrl}/works`);
@@ -219,11 +265,11 @@ async function fetchWorks() {
 };
 
 function createGallery(work){
-
     let figureElement = document.createElement('div');
     figureElement.className = 'figure';
     
     let imgElement = document.createElement('img');
+    imgElement.id = work.id
     imgElement.className = 'work-image';
     imgElement.src = work.imageUrl; 
     imgElement.alt = work.title;
@@ -247,19 +293,72 @@ function displayWorks(works) {
     });
 };
 
-// async function sendProject(login){
-//     try {
-//         let response = await fetch(`${apiUrl}/works`, {
-//             headers: { "Content-Type": "application/json" },
-//             method: "POST",
-//             body: 
-//         })
-//         if (response.ok) {
-//             token = await response.json();
-//             localStorage.setItem('token', token);  // Stocke le token dans localStorage
-//             window.location.href = "editpage.html"
-//         }
-//     } catch (error) {
-//         console.error('Erreur:', error);
-//     }
-// }
+async function deleteProject(id){
+    try {
+        let response = await fetch(`${apiUrl}/works/${id}`, {
+            headers: { 
+                Authorization: `Bearer ${token}`
+            },
+            method: "DELETE",
+        })
+        if (response.ok) {
+            console.log('succès')
+            console.log(response)
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+    
+}
+
+
+async function sendProject(){
+    title = document.getElementById('title').value
+    category = document.getElementById('category').value
+    console.log(category)
+    formData.append("title",title)
+    formData.append("category",parseInt(category))
+    console.log(category)
+    try {
+        let response = await fetch(`${apiUrl}/works`, {
+            headers: { 
+            
+                Authorization: `Bearer ${token}`
+            },
+            method: "POST",
+            body: formData
+        })
+        if (response.ok) {
+            console.log('succès')
+            console.log(response)
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+    
+}
+
+
+function getAllIds(worksData) {
+    let projectIds = [];
+    for (let i = 0; i < worksData.length; i++) {
+        projectIds.push(worksData[i]);
+    }
+    return projectIds;
+}
+
+class project{
+    constructor(imageURL,title,category){
+        this.imageURL = imageURL
+        this.title = title
+        this.category = category
+    }
+
+    toDictionary(){
+        return {
+            'image': this.imageURL,
+            'title': this.title,
+            'category': this.category
+        };
+    }
+}

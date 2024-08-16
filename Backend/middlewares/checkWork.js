@@ -1,5 +1,6 @@
 module.exports = (req, res, next) => {
 	try{
+		console.log(req.body)
 		const host = req.get('host');
 		const title = req.body.title.trim() ?? undefined;
 		const categoryId = parseInt(req.body.category) ?? undefined;

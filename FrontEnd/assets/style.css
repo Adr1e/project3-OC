@@ -191,6 +191,10 @@ li:hover {
 	color: #FFFEF8;
 }
 
+.filter-btn.active {
+	background-color: #1D6154;
+	color: #FFFEF8;
+  }
 
 .gallery {
 	width: 100%;
@@ -282,11 +286,14 @@ header .login {
 }
 
 .login-container {
+	display: flex;
+	flex-direction: column;
 	margin-top: 100px;
     text-align: center;
 	margin-left: 300px;
 	margin-right: 300px;
 	padding: 25px;
+	gap: 25px;
 }
 
 .login-container h2 {
@@ -323,7 +330,6 @@ header .login {
 	background: #1D6154;
     border-radius: 4px;
     font-size: 16px;
-	
 }
 
 
@@ -382,16 +388,15 @@ header .login {
 
 }
 
-.js-modal-close {
-	background-color: transparent;
-	border: none;
+.modal .js-modal-close {
 	display: flex;
 	justify-content: flex-end;
+	width : 530px
   }
 
-  .close-button {
-	display: flex;
-	justify-content: flex-end;
+  .js-modal-close {
+	background: none;
+	border: none;
   }
 
   .modal-content {
@@ -431,7 +436,6 @@ header .login {
 }
 
 .close-button {
-    position: absolute;
     top: 10px;
     right: 10px;
     background: none;
@@ -462,6 +466,18 @@ header .login {
 	font-size: 20px;
 }
 
+.modal-headbar {
+	display: flex;
+	justify-content: space-between;
+	width: 540px;
+}
+
+.come-back-button {
+	background: none;
+    border: none;
+    color: #333;
+
+}
 
 /* modal ajout project */
 .cadre-photo {
@@ -473,8 +489,8 @@ header .login {
 	height: 200px;
 	width: 420px;
 	background-color: #E8F1F6;
-	gap: 25px;
-	border-radius: 3px;
+	gap: 20px;
+	border-radius: 1px;
 }
 
 .photo-icon i {
@@ -532,3 +548,40 @@ header .login {
 	align-self: center;
 	z-index: -1;
 }
+
+/* error message  */
+
+.error-message {
+    color: lightcoral;
+    font-size: 16px;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid lightcoral;
+    border-radius: 5px;
+    background-color: #ffdddd;
+}
+
+.button-add-photo-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.image {
+	border: none;
+}
+
+.delete-button {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	background: black;
+	border: none;
+	width: 17px;
+	height: 17px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-radius: 2px;
+  }

@@ -15,6 +15,9 @@ email: sophie.bluel@test.tld
 
 password: S0phie 
 ```
+
+"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMzY3MzU5OSwiZXhwIjoxNzIzNzU5OTk5fQ.xrYtbh1VOQR9jpYihoMY33pOQqKa5wZn0DBPUEejpyo"
+
 Lien pour voir la
 [documentation Swagger](http://localhost:5678/api-docs/)
 

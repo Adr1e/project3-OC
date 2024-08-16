@@ -9,7 +9,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<meta name="description" content="">
-	<link rel="stylesheet" href="./assets/style.css">
+	<link rel="stylesheet" href="../assets/style.css">
 
 </head>
 <body>
@@ -26,14 +26,14 @@
 			<li>projets</li>
 			<li>contact</li>
 			<li><a href="index.html">logout</a></li>
-			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
+			<li><img src="../assets/icons/instagram.png" alt="Instagram"></li>
 		</ul>
 	</nav>
 </header>
 <main>
 	<section id="introduction">
 		<figure>
-			<img src="./assets/images/sophie-bluel.png" alt="">
+			<img src="../assets/images/sophie-bluel.png" alt="">
 		</figure>
 		<article>
 			<h2>Designer d'espace</h2>
@@ -79,9 +79,7 @@
 
 <aside id="modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="title-modal" aria-modal="false" style="display:none;">
 	<div class="modal-wrapper js-modal-stop">
-		<div class ="close-button">
-			<button id="close-button" class="js-modal-close"><i class="fa-solid fa-xmark"></i></i></button>
-		</div>
+		<button id="close-button" class="js-modal-close"><i class="fa-solid fa-xmark"></i></button>
 		<h3>Galerie photo</h3>
 		<div class="modal-content">
 		</div>
@@ -95,13 +93,15 @@
 
 <aside id="modal-add" class="modal" aria-hidden="true" role="dialog" aria-labelledby="title-add-photo-modal" aria-modal="false" style="display:none;">
     <div class="modal-wrapper js-modal-stop">
-        <div class="close-button">
-            <button class="js-modal-close"><i class="fa-solid fa-xmark"></i></button>
-        </div>
+		<div class="modal-headbar">
+			<button id="come-back-button" class="come-back-button"><i class="fa-solid fa-left-long"></i></button>
+			<button id="close-button" class="js-modal-close"><i class="fa-solid fa-xmark"></i></button>
+		</div>
         	<h3 id="title-add-photo-modal">Ajout photo</h3>
 			<div class="cadre-photo">
 				<div class="photo-icon"><i class="fa-regular fa-image"></i></div>
 				<div class="button-add-photo-container">
+					<img src ="" id="pre-img" class="image">
 					<label class="button-add-photo" for ="input-file">+ ajouter photo</label>
 					<input type="file" accept="image/jpg, image/npg" id ="input-file">
 				</div>
@@ -121,15 +121,12 @@
 				</select>
 			</div>
         	<div class="separator"></div>
-			<button class="send-project" id="validate-project">
+			<button class="send-project" id="send-project">
 				valider
 			</button>
         </div>
     </div>
 </aside>
-
-<script src="editScript.js"></script>
-
-
+<script type="module" src="editScript.js"></script>
 </body>
 </html>

@@ -11,28 +11,50 @@ const filterId={
     'objets' : 1,
     'appartements':2,
     'hotels-restaurants':3}
-    
+
+const buttons = document.querySelectorAll('filter-btn')
+const allButton = document.getElementById('all')
+const clickEvent = new Event('click');
+
 document.addEventListener("DOMContentLoaded", () => {
     gallery = document.getElementById('gallery');
 
     // bouton "Tous"
     document.getElementById('all').addEventListener('click', () => {
         displayWorks(worksData,'all');
+        filterActivate(document.getElementById('all'))
+        document.getElementById('objets').classList.remove('active');
+        document.getElementById('appartements').classList.remove('active');
+        document.getElementById('hotels-restaurants').classList.remove('active');
     });
 
     //  bouton "Objets"
     document.getElementById('objets').addEventListener('click', () => {
         displayWorks(worksData,'objets');
+        filterActivate(document.getElementById('objets'))
+        document.getElementById('all').classList.remove('active');
+        document.getElementById('hotels-restaurants').classList.remove('active');
+        document.getElementById('appartements').classList.remove('active'); 
     });
 
     //  bouton "Appartements"
     document.getElementById('appartements').addEventListener('click', () => {
         displayWorks(worksData,'appartements');
+        filterActivate(document.getElementById('appartements'))
+        document.getElementById('objets').classList.remove('active');
+        document.getElementById('all').classList.remove('active');
+        document.getElementById('hotels-restaurants').classList.remove('active');
+        
+
     });
 
     // bouton "Hotels & restaurants"
     document.getElementById('hotels-restaurants').addEventListener('click', () => {
         displayWorks(worksData,'hotels-restaurants');
+        filterActivate(document.getElementById('hotels-restaurants'))
+        document.getElementById('objets').classList.remove('active');
+        document.getElementById('all').classList.remove('active');
+        document.getElementById('appartements').classList.remove('active'); 
     });
 
     fetchWorks();
@@ -43,7 +65,7 @@ async function fetchWorks() {
         let rWorkData = await fetch(`${apiUrl}/works`);
         if (rWorkData.ok) {
             worksData =  await rWorkData.json();
-            displayWorks(worksData,'all')
+            document.getElementById('all').dispatchEvent(clickEvent);         
         } 
     } catch (error) {
         console.error('Erreur:', error);
@@ -75,6 +97,7 @@ function displayWorks(works,id) {
     gallery.innerHTML =''
     id = filterId[id]
 
+
     works.forEach(work => {
         var categoryId = work.categoryId
         if (categoryId == id) {
@@ -85,3 +108,8 @@ function displayWorks(works,id) {
         }
     });
 };
+
+
+function filterActivate(selectedButton) {
+    selectedButton.classList.add('active');
+}

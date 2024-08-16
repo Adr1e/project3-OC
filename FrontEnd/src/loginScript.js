@@ -1,19 +1,16 @@
 const apiUrl = 'http://localhost:5678/api';
 var token;
-var index;
+let index;
 
+const loginForm = document.getElementById('loginForm')
 
-
-document.addEventListener("DOMContentLoaded", () => {
+if (loginForm) {
     loginForm.addEventListener('submit', function(event)  {
-
-
         event.preventDefault();
         let logs = getLogin()
         verifyLogin(logs);
-
     });
-});
+}
 
 function getLogin(){
     let email = document.getElementById("email").value;
@@ -30,12 +27,20 @@ async function verifyLogin(login){
         })
         if (response.ok) {
             token = await response.json();
-            localStorage.setItem('token', token);  // Stocke le token dans localStorage
+            localStorage.setItem("token", JSON.stringify(token));
             window.location.href = "editpage.html"
+        }
+        else {
+            showErrorMessage()
         }
     } catch (error) {
         console.error('Erreur:', error);
     }
+}
+
+function showErrorMessage() {
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.style.display = "block";
 }
        
 class Login{
