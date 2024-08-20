@@ -3,8 +3,6 @@ var gallery
 var worksData = [];
 var token = localStorage.getItem('token');
 
-
-
 const apiUrl = 'http://localhost:5678/api';
 const filterId={
     'all' : 0,
@@ -18,6 +16,7 @@ const clickEvent = new Event('click');
 
 document.addEventListener("DOMContentLoaded", () => {
     gallery = document.getElementById('gallery');
+
 
     // bouton "Tous"
     document.getElementById('all').addEventListener('click', () => {

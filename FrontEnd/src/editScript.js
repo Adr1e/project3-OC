@@ -5,17 +5,21 @@ let focusables = []
 let previouslyFocusedElement = null
 
 let gallery 
-let worksData = [];
-let category
-let title
 let imageUrl
+let worksData = []
+let testcategory = []
 const token = JSON.parse(localStorage.getItem('token')).token
+
 
 let cadrePhoto = document.querySelector('.cadre-photo');
 let photoIcon = cadrePhoto.querySelector('.photo-icon');
 let maxSizeText = cadrePhoto.querySelector('h5');
 let labelText = cadrePhoto.querySelector('.button-add-photo');
-let inputFile = document.getElementById('input-file');
+
+const inputFile = document.getElementById('input-file');
+const title = document.getElementById('title');
+const category = document.getElementById('category');
+
 let img = document.getElementById('pre-img')
 let sendButton = document.getElementById('send-project')
 
@@ -34,21 +38,18 @@ document.addEventListener("DOMContentLoaded", () => {
     setModalAdd()
 })
 
-// Add an event listener to the file input field
+
 inputFile.onchange = function(){
     img.src = URL.createObjectURL(inputFile.files[0])
-    console.log(inputFile.files[0])
     const file = inputFile.files[0]
     formData.append('image', file);
 
-    // If there is an existing image element, replace it with the new image
+
     if (img) {
         img.width = 150;
         img.height = 195;
         img.style.display = 'flex'
     }
-
-    // Hide the photo-icon div and the h5 element
 
     if (photoIcon) {
       photoIcon.style.display = 'none';
@@ -109,6 +110,9 @@ function setModalAdd(){
     document.querySelector('.add-photo').addEventListener('click' , function(event){
         closeModal(event)
         openModal('modal-add')
+        populateCategoryDropdown()
+
+
     })
     document.getElementById("modal-add").addEventListener('click',function(event){
         handleClickOutside(event,'#modal-add')
@@ -148,8 +152,6 @@ function closeModal(event) {
     modal.style.display = "none"
     modal.setAttribute('aria-hidden','true')
     modal.setAttribute('aria-modal','false')
-
-    // Remove all child nodes of the modal content
     const modalContent = modal.querySelector('.modal-content');
     if (modalContent){
         while (modalContent.firstChild) {
@@ -191,9 +193,8 @@ const focusInModal = function(e) {
 
 function createGalleryForModal(){
     const gallery = document.getElementById('gallery');
-    
-    if (!gallery) return;
 
+    if (!gallery) return;
     const images = gallery.querySelectorAll('img');
     const modalContent = modal.querySelector('.modal-content');
     modalContent.style.display = 'flex';
@@ -201,11 +202,8 @@ function createGalleryForModal(){
     modalContent.style.justifyContent = 'space-between';
 
     images.forEach(img => {
-            // Appel à la fonction createImageContainer pour créer le conteneur d'image
             const imageContainer = createImageContainer(img);
-            // Appel à la fonction createDeleteButton pour créer le bouton de suppression
             const deleteButton = createDeleteButton(img.id);
-            console.log(img.id)
             imageContainer.appendChild(deleteButton);
             modalContent.appendChild(imageContainer);
     });
@@ -216,8 +214,7 @@ const createDeleteButton = function(id) {
     deleteButton.id = 'delete-button';
     deleteButton.className = 'delete-button';
     deleteButton.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
-
-    // Ensure the icon is white and centered
+    // pour que l'icône soit bien placée
     const icon = deleteButton.querySelector('i');
     icon.style.color = 'white';
     icon.style.width = '9px';
@@ -234,8 +231,6 @@ const createDeleteButton = function(id) {
     return deleteButton;
 }
 
-
-
 const createImageContainer = function(img) {
     const imageContainer = document.createElement('div');
     imageContainer.style.position = 'relative';
@@ -251,18 +246,6 @@ const createImageContainer = function(img) {
 
     return imageContainer;
 }
-
-async function fetchWorks() {
-    try {
-        let rWorkData = await fetch(`${apiUrl}/works`);
-        if (rWorkData.ok) {
-            worksData =  await rWorkData.json();
-            displayWorks(worksData,'all')
-        } 
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
-};
 
 function createGallery(work){
     let figureElement = document.createElement('div');
@@ -288,10 +271,77 @@ function createGallery(work){
 function displayWorks(works) {
     gallery.innerHTML =''
     works.forEach(work => {
-            createGallery(work)
-
+        createGallery(work)
+        
     });
 };
+
+async function getCategory() {
+    try {
+        let rCategory = await fetch(`${apiUrl}/categories`);
+        if (rCategory.ok) {
+            testcategory =  await rCategory.json();
+            console.log(testcategory)
+            return testcategory
+
+
+        } 
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function populateCategoryDropdown() {
+    const categories = await getCategory();
+    if (Array.isArray(categories)) {
+        const categorySelect = document.getElementById('category');
+        categorySelect.innerHTML = "";
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = ""; 
+        defaultOption.className = 'category-text';
+        categorySelect.appendChild(defaultOption);
+
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id; 
+            option.textContent = category.name; 
+            option.className = 'category-text';
+            categorySelect.appendChild(option);
+        });
+    } 
+}
+
+function verificationProject() {
+    if (inputFile.files.length === 0 || title.value.trim() === '' || category.value === '') {
+        sendButton.style.backgroundColor = '#A7A7A7';
+    }
+    else{
+        sendButton.style.backgroundColor = '#1D6154';
+    }
+    requestAnimationFrame(verificationProject);
+}
+requestAnimationFrame(verificationProject);
+
+function getAllIds(worksData) {
+    let projectIds = [];
+    for (let i = 0; i < worksData.length; i++) {
+        projectIds.push(worksData[i]);
+    }
+    return projectIds;
+}
+
+async function fetchWorks() {
+    try {
+        let rWorkData = await fetch(`${apiUrl}/works`);
+        if (rWorkData.ok) {
+            worksData =  await rWorkData.json();
+            displayWorks(worksData,'all')
+        } 
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
 
 async function deleteProject(id){
     try {
@@ -311,14 +361,11 @@ async function deleteProject(id){
     
 }
 
-
 async function sendProject(){
-    title = document.getElementById('title').value
-    category = document.getElementById('category').value
-    console.log(category)
-    formData.append("title",title)
-    formData.append("category",parseInt(category))
-    console.log(category)
+    let sendTitle = title.value
+    let sendCategory = category.value
+    formData.append("title",sendTitle)
+    formData.append("category",parseInt(sendCategory))
     try {
         let response = await fetch(`${apiUrl}/works`, {
             headers: { 
@@ -335,30 +382,8 @@ async function sendProject(){
     } catch (error) {
         console.error('Erreur:', error);
     }
-    
 }
 
 
-function getAllIds(worksData) {
-    let projectIds = [];
-    for (let i = 0; i < worksData.length; i++) {
-        projectIds.push(worksData[i]);
-    }
-    return projectIds;
-}
 
-class project{
-    constructor(imageURL,title,category){
-        this.imageURL = imageURL
-        this.title = title
-        this.category = category
-    }
 
-    toDictionary(){
-        return {
-            'image': this.imageURL,
-            'title': this.title,
-            'category': this.category
-        };
-    }
-}
