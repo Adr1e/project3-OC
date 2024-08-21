@@ -95,8 +95,6 @@ function createGallery(work){
 function displayWorks(works,id) {
     gallery.innerHTML =''
     id = filterId[id]
-
-
     works.forEach(work => {
         var categoryId = work.categoryId
         if (categoryId == id) {

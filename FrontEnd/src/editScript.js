@@ -1,4 +1,4 @@
-const formData = new FormData();
+let formData = new FormData();
 
 let modal = null
 let focusables = []
@@ -33,11 +33,10 @@ const focusableSelector = "button, a, input, textarea"
 
 document.addEventListener("DOMContentLoaded", () => {
     gallery = document.getElementById('gallery');
-    fetchWorks();
+    actualiseProject()
     setModal()
     setModalAdd()
 })
-
 
 inputFile.onchange = function(){
     img.src = URL.createObjectURL(inputFile.files[0])
@@ -110,7 +109,7 @@ function setModalAdd(){
     document.querySelector('.add-photo').addEventListener('click' , function(event){
         closeModal(event)
         openModal('modal-add')
-        populateCategoryDropdown()
+        buildCategory()
 
 
     })
@@ -159,6 +158,7 @@ function closeModal(event) {
         }
     }
     modal = null
+    actualiseProject()
 }
 
 function resetAddmodal() {
@@ -208,6 +208,7 @@ function createGalleryForModal(){
             modalContent.appendChild(imageContainer);
     });
 }
+
 
 const createDeleteButton = function(id) {
     const deleteButton = document.createElement('button');
@@ -272,7 +273,6 @@ function displayWorks(works) {
     gallery.innerHTML =''
     works.forEach(work => {
         createGallery(work)
-        
     });
 };
 
@@ -281,17 +281,14 @@ async function getCategory() {
         let rCategory = await fetch(`${apiUrl}/categories`);
         if (rCategory.ok) {
             testcategory =  await rCategory.json();
-            console.log(testcategory)
             return testcategory
-
-
         } 
     } catch (error) {
         console.error('Erreur:', error);
     }
 }
 
-async function populateCategoryDropdown() {
+async function buildCategory() {
     const categories = await getCategory();
     if (Array.isArray(categories)) {
         const categorySelect = document.getElementById('category');
@@ -299,14 +296,12 @@ async function populateCategoryDropdown() {
         const defaultOption = document.createElement('option');
         defaultOption.value = "";
         defaultOption.textContent = ""; 
-        defaultOption.className = 'category-text';
         categorySelect.appendChild(defaultOption);
 
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.id; 
             option.textContent = category.name; 
-            option.className = 'category-text';
             categorySelect.appendChild(option);
         });
     } 
@@ -329,18 +324,6 @@ function getAllIds(worksData) {
         projectIds.push(worksData[i]);
     }
     return projectIds;
-}
-
-async function fetchWorks() {
-    try {
-        let rWorkData = await fetch(`${apiUrl}/works`);
-        if (rWorkData.ok) {
-            worksData =  await rWorkData.json();
-            displayWorks(worksData,'all')
-        } 
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
 }
 
 async function deleteProject(id){
@@ -366,24 +349,32 @@ async function sendProject(){
     let sendCategory = category.value
     formData.append("title",sendTitle)
     formData.append("category",parseInt(sendCategory))
+    console.log(formData)
     try {
-        let response = await fetch(`${apiUrl}/works`, {
+        await fetch(`${apiUrl}/works`, {
             headers: { 
-            
                 Authorization: `Bearer ${token}`
             },
             method: "POST",
             body: formData
         })
-        if (response.ok) {
-            console.log('succès')
-            console.log(response)
-        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+    formData = new FormData()
+}
+
+async function actualiseProject() {
+    try {
+        let rWorkData = await fetch(`${apiUrl}/works`);
+        if (rWorkData.ok) {
+            worksData =  await rWorkData.json();
+            displayWorks(worksData)
+        } 
     } catch (error) {
         console.error('Erreur:', error);
     }
 }
-
 
 
 
